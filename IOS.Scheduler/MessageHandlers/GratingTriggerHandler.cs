@@ -45,7 +45,7 @@ public class GratingTriggerHandler : BaseMessageHandler
 
     protected override IEnumerable<string> GetSupportedTopics()
     {
-        return new[] { "*/sensor/grating/trigger", "+/sensor/grating/trigger" };
+        return new[] { "ios/v1/sensor/grating/trigger" };
     }
 
     private string? GetPublishTopic(string key)

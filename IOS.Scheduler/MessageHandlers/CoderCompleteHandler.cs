@@ -47,7 +47,7 @@ public class CoderCompleteHandler : BaseMessageHandler
 
     protected override IEnumerable<string> GetSupportedTopics()
     {
-        return new[] { "*/coder/service/complete", "+/coder/service/complete" };
+        return new[] { "ios/v1/coder/service/complete" };
     }
 
     private async Task UpdateOrderStatusAsync(CoderResultData coderResult)

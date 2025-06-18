@@ -45,7 +45,7 @@ public class MotionCompleteHandler : BaseMessageHandler
 
     protected override IEnumerable<string> GetSupportedTopics()
     {
-        return new[] { "*/motion/control/complete", "+/motion/control/complete" };
+        return new[] { "ios/v1/motion/control/complete" };
     }
 
     private string? GetPublishTopic(string key)

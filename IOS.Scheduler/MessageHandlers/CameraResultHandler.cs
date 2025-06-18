@@ -45,7 +45,7 @@ public class CameraResultHandler : BaseMessageHandler
 
     protected override IEnumerable<string> GetSupportedTopics()
     {
-        return new[] { "*/vision/camera/result", "+/vision/camera/result" };
+        return new[] { "ios/v1/vision/camera/result" };
     }
 
     private async Task TriggerMotionControlAsync()
