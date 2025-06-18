@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<AssemblyName>IOS.Scheduler</AssemblyName>
+	<RootNamespace>IOS.Scheduler</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IOSBase\IOS.Base.csproj" />
+  </ItemGroup>
+
+</Project>

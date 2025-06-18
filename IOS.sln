@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Base", "IOSBase\IOS.Base.csproj", "{24919C43-56B1-4643-9623-77E16D6DBC1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Scheduler", "IOS.Scheduler\IOS.Scheduler.csproj", "{208B0641-3041-4EE7-80F0-B136F33A8937}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24919C43-56B1-4643-9623-77E16D6DBC1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24919C43-56B1-4643-9623-77E16D6DBC1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24919C43-56B1-4643-9623-77E16D6DBC1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24919C43-56B1-4643-9623-77E16D6DBC1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{208B0641-3041-4EE7-80F0-B136F33A8937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{208B0641-3041-4EE7-80F0-B136F33A8937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{208B0641-3041-4EE7-80F0-B136F33A8937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{208B0641-3041-4EE7-80F0-B136F33A8937}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9D2F097E-1791-49AD-A1BE-780998DAB635}
+	EndGlobalSection
+EndGlobal
