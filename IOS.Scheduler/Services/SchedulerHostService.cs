@@ -6,6 +6,7 @@ using IOS.Base.Messaging;
 using IOS.Scheduler.MessageHandlers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using IOS.Base.Enums;
 
 namespace IOS.Scheduler.Services
 {
@@ -14,7 +15,6 @@ namespace IOS.Scheduler.Services
     /// </summary>
     public class SchedulerHostService : BaseHostService
     {
-        private readonly Timer _statusTimer;
         private readonly SchedulerMessageHandlerFactory _messageHandlerFactory;
 
         public SchedulerHostService(
@@ -25,25 +25,19 @@ namespace IOS.Scheduler.Services
             : base(mqttService, logger, mqttOptions)
         {
             _messageHandlerFactory = messageHandlerFactory;
-            // 初始化定时器（但不启动）
-            _statusTimer = new Timer(PublishStatusAsync, null, Timeout.Infinite, Timeout.Infinite);
+         
         }
 
         protected override async Task OnServiceStartingAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("调度器服务正在初始化...");
             
-            // 启动状态发布定时器（每30秒发布一次状态）
-            _statusTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(30));
             await base.OnServiceStartingAsync(cancellationToken);
         }
 
         protected override async Task OnServiceStoppingAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("调度器服务正在清理资源...");
-            
-            // 停止定时器
-            await _statusTimer.DisposeAsync();
             
             // 发布服务停止状态
             try
@@ -88,6 +82,7 @@ namespace IOS.Scheduler.Services
         protected override async Task OnMqttDisconnectedAsync()
         {
             _logger.LogWarning("调度器MQTT连接已断开");
+            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -118,7 +113,8 @@ namespace IOS.Scheduler.Services
                 Version = _mqttOptions.Messages.Version
             };
 
-            var topic = GetPublishTopic("scheduler/status");
+            var topic = GetPublishTopic(TopicType.Sensor);
+            _logger.LogInformation(topic);
             if (!string.IsNullOrEmpty(topic))
             {
                 await PublishMessageAsync(topic, statusData, "service_status", cancellationToken);
@@ -128,8 +124,10 @@ namespace IOS.Scheduler.Services
         /// <summary>
         /// 获取发布主题
         /// </summary>
-        private string? GetPublishTopic(string key)
+        private string? GetPublishTopic(TopicType topic)
         {
+            var key = topic.ToString();
+            
             // 从配置中获取发布主题
             if (_mqttOptions.Topics.Publish?.ContainsKey(key) == true)
             {

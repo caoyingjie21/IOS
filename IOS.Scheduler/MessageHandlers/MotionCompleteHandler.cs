@@ -3,24 +3,20 @@ using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using IOS.Base.Enums;
 
 namespace IOS.Scheduler.MessageHandlers;
 
 /// <summary>
 /// 运动完成消息处理器
 /// </summary>
-public class MotionCompleteHandler : BaseMessageHandler
+public class MotionCompleteHandler : SchedulerBaseMessageHandler
 {
-    private readonly IMqttService _mqttService;
-    private readonly StandardMqttOptions _mqttOptions;
-
     public MotionCompleteHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<MotionCompleteHandler> logger) : base(logger)
+        ILogger<MotionCompleteHandler> logger) : base(mqttService, mqttOptions, logger)
     {
-        _mqttService = mqttService;
-        _mqttOptions = mqttOptions.Value;
     }
 
     protected override async Task ProcessMessageAsync(string topic, string message)
@@ -28,17 +24,11 @@ public class MotionCompleteHandler : BaseMessageHandler
         Logger.LogInformation("处理运动完成消息: {Message}", message);
         
         // 运动完成后触发编码器服务
-        var coderTopic = GetPublishTopic("coder/service/start");
+        var coderTopic = GetPublishTopic(TopicType.Coder);
         if (!string.IsNullOrEmpty(coderTopic))
         {
-            var coderMessage = new StandardMessage<object>
-            {
-                MessageType = "coder_start",
-                Sender = "IOS.Scheduler",
-                Data = new { Command = "start_coding" }
-            };
-            
-            await _mqttService.PublishAsync(coderTopic, coderMessage);
+            var coderData = new { Command = "start_coding" };
+            await PublishMessageAsync(coderTopic, coderData, "coder_start");
             Logger.LogDebug("已发送编码器启动消息到主题: {Topic}", coderTopic);
         }
     }
@@ -46,17 +36,5 @@ public class MotionCompleteHandler : BaseMessageHandler
     protected override IEnumerable<string> GetSupportedTopics()
     {
         return new[] { "ios/v1/motion/control/complete" };
-    }
-
-    private string? GetPublishTopic(string key)
-    {
-        // 从配置中获取发布主题
-        if (_mqttOptions.Topics.Publish?.ContainsKey(key) == true)
-        {
-            return _mqttOptions.Topics.Publish[key];
-        }
-        
-        // 如果没有配置，尝试从Publications列表中匹配
-        return _mqttOptions.Topics.Publications?.FirstOrDefault(t => t.Contains(key));
     }
 } 

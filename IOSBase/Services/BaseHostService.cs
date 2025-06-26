@@ -186,20 +186,21 @@ namespace IOS.Base.Services
         /// <summary>
         /// 订阅MQTT主题
         /// </summary>
+ 
         protected virtual async Task SubscribeToTopicsAsync(CancellationToken cancellationToken)
         {
-            if (_mqttOptions.Topics.Subscriptions?.Any() == true)
+            if (_mqttOptions.Topics.Subscribe?.Any() == true)
             {
-                foreach (var topic in _mqttOptions.Topics.Subscriptions)
+                foreach (var topicPair in _mqttOptions.Topics.Subscribe)
                 {
                     try
                     {
-                        await _mqttService.SubscribeAsync(topic, cancellationToken);
-                        _logger.LogInformation("已订阅主题: {Topic}", topic);
+                        await _mqttService.SubscribeAsync(topicPair.Value, cancellationToken);
+                        _logger.LogInformation("已订阅主题: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "订阅主题失败: {Topic}", topic);
+                        _logger.LogError(ex, "订阅主题失败: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
                     }
                 }
             }

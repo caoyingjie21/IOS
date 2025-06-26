@@ -7,6 +7,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Base", "IOSBase\IOS.Bas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Scheduler", "IOS.Scheduler\IOS.Scheduler.csproj", "{208B0641-3041-4EE7-80F0-B136F33A8937}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "IOS.Camera", "IOS.Camera\IOS.Camera.pyproj", "{C48C0DFC-3903-4C04-924D-6EA898B0636A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Viewer", "IOS.Viewer\IOS.Viewer.csproj", "{88923F7A-C51B-A918-1872-8283008CE1EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Viewer.Android", "IOS.Viewer.Android\IOS.Viewer.Android.csproj", "{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Coder", "IOS.Coder\IOS.Coder.csproj", "{E7B958FB-2C85-4D6A-834D-030620BE84C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOS.Motion", "IOS.Motion\IOS.Motion.csproj", "{380A761A-CA14-49EE-B167-A2ABAAA9C93F}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "IOS.DataServer", "IOS.DataServer\IOS.DataServer.pyproj", "{ABD90B4F-30CC-4DFA-BD1F-FEFC282B12FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +33,28 @@ Global
 		{208B0641-3041-4EE7-80F0-B136F33A8937}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{208B0641-3041-4EE7-80F0-B136F33A8937}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{208B0641-3041-4EE7-80F0-B136F33A8937}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C48C0DFC-3903-4C04-924D-6EA898B0636A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C48C0DFC-3903-4C04-924D-6EA898B0636A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88923F7A-C51B-A918-1872-8283008CE1EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88923F7A-C51B-A918-1872-8283008CE1EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88923F7A-C51B-A918-1872-8283008CE1EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88923F7A-C51B-A918-1872-8283008CE1EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9A988D0-EAF0-C3DF-DB73-58796C9DC19C}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E7B958FB-2C85-4D6A-834D-030620BE84C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7B958FB-2C85-4D6A-834D-030620BE84C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7B958FB-2C85-4D6A-834D-030620BE84C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7B958FB-2C85-4D6A-834D-030620BE84C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{380A761A-CA14-49EE-B167-A2ABAAA9C93F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{380A761A-CA14-49EE-B167-A2ABAAA9C93F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{380A761A-CA14-49EE-B167-A2ABAAA9C93F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{380A761A-CA14-49EE-B167-A2ABAAA9C93F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABD90B4F-30CC-4DFA-BD1F-FEFC282B12FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD90B4F-30CC-4DFA-BD1F-FEFC282B12FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

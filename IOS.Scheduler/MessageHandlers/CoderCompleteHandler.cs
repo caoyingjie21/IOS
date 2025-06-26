@@ -9,18 +9,13 @@ namespace IOS.Scheduler.MessageHandlers;
 /// <summary>
 /// 编码器完成消息处理器
 /// </summary>
-public class CoderCompleteHandler : BaseMessageHandler
+public class CoderCompleteHandler : SchedulerBaseMessageHandler
 {
-    private readonly IMqttService _mqttService;
-    private readonly StandardMqttOptions _mqttOptions;
-
     public CoderCompleteHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<CoderCompleteHandler> logger) : base(logger)
+        ILogger<CoderCompleteHandler> logger) : base(mqttService, mqttOptions, logger)
     {
-        _mqttService = mqttService;
-        _mqttOptions = mqttOptions.Value;
     }
 
     protected override async Task ProcessMessageAsync(string topic, string message)

@@ -3,24 +3,20 @@ using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using IOS.Base.Enums;
 
 namespace IOS.Scheduler.MessageHandlers;
 
 /// <summary>
 /// 相机结果消息处理器
 /// </summary>
-public class CameraResultHandler : BaseMessageHandler
+public class CameraResultHandler : SchedulerBaseMessageHandler
 {
-    private readonly IMqttService _mqttService;
-    private readonly StandardMqttOptions _mqttOptions;
-
     public CameraResultHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<CameraResultHandler> logger) : base(logger)
+        ILogger<CameraResultHandler> logger) : base(mqttService, mqttOptions, logger)
     {
-        _mqttService = mqttService;
-        _mqttOptions = mqttOptions.Value;
     }
 
     protected override async Task ProcessMessageAsync(string topic, string message)
@@ -50,31 +46,13 @@ public class CameraResultHandler : BaseMessageHandler
 
     private async Task TriggerMotionControlAsync()
     {
-        var motionTopic = GetPublishTopic("motion/control/move");
+        var motionTopic = GetPublishTopic(TopicType.Motion);
         if (!string.IsNullOrEmpty(motionTopic))
         {
-            var motionMessage = new StandardMessage<object>
-            {
-                MessageType = "motion_control",
-                Sender = "IOS.Scheduler",
-                Data = new { Command = "move_to_position" }
-            };
-            
-            await _mqttService.PublishAsync(motionTopic, motionMessage);
+            var motionData = new { Command = "move_to_position" };
+            await PublishMessageAsync(motionTopic, motionData, "motion_control");
             Logger.LogDebug("已发送运动控制消息到主题: {Topic}", motionTopic);
         }
-    }
-
-    private string? GetPublishTopic(string key)
-    {
-        // 从配置中获取发布主题
-        if (_mqttOptions.Topics.Publish?.ContainsKey(key) == true)
-        {
-            return _mqttOptions.Topics.Publish[key];
-        }
-        
-        // 如果没有配置，尝试从Publications列表中匹配
-        return _mqttOptions.Topics.Publications?.FirstOrDefault(t => t.Contains(key));
     }
 }
 
