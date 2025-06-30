@@ -134,8 +134,8 @@ namespace IOS.Scheduler.Services
                 return _mqttOptions.Topics.Publish[key];
             }
             
-            // 如果没有配置，尝试从Publications列表中匹配
-            return _mqttOptions.Topics.Publications?.FirstOrDefault(t => t.Contains(key));
+            // 如果没有配置，尝试从Publish字典的值中匹配
+            return _mqttOptions.Topics.Publish?.Values.FirstOrDefault(t => t.Contains(key));
         }
     }
 }

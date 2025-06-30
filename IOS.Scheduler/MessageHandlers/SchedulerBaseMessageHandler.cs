@@ -2,6 +2,7 @@ using IOS.Base.Messaging;
 using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
 using IOS.Base.Enums;
+using IOS.Base.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,14 +15,17 @@ public abstract class SchedulerBaseMessageHandler : BaseMessageHandler
 {
     protected readonly IMqttService MqttService;
     protected readonly StandardMqttOptions MqttOptions;
+    protected readonly SharedDataService SharedDataService;
 
     protected SchedulerBaseMessageHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
+        SharedDataService sharedDataService,
         ILogger logger) : base(logger)
     {
         MqttService = mqttService;
         MqttOptions = mqttOptions.Value;
+        SharedDataService = sharedDataService;
     }
 
     /// <summary>
@@ -37,8 +41,8 @@ public abstract class SchedulerBaseMessageHandler : BaseMessageHandler
             return MqttOptions.Topics.Publish[key];
         }
 
-        // 如果没有配置，尝试从Publications列表中匹配
-        return MqttOptions.Topics.Publications?.FirstOrDefault(t => t.Contains(key));
+        // 如果没有配置，尝试从Publish字典的值中匹配
+        return MqttOptions.Topics.Publish?.Values.FirstOrDefault(t => t.Contains(key));
     }
 
     /// <summary>
@@ -55,5 +59,34 @@ public abstract class SchedulerBaseMessageHandler : BaseMessageHandler
 
         await MqttService.PublishAsync(topic, message, cancellationToken);
         Logger.LogDebug("已发布消息到主题: {Topic}, 消息类型: {MessageType}", topic, messageType);
+    }
+
+    /// <summary>
+    /// 保存共享数据的便利方法
+    /// </summary>
+    protected void SaveSharedData<T>(string key, T value)
+    {
+        SharedDataService.SetData(key, value);
+        Logger.LogDebug("保存共享数据: {Key}", key);
+    }
+
+    /// <summary>
+    /// 获取共享数据的便利方法
+    /// </summary>
+    protected T? GetSharedData<T>(string key)
+    {
+        var data = SharedDataService.GetData<T>(key);
+        Logger.LogDebug("获取共享数据: {Key}, 存在: {Exists}", key, data != null);
+        return data;
+    }
+
+    /// <summary>
+    /// 尝试获取共享数据的便利方法
+    /// </summary>
+    protected bool TryGetSharedData<T>(string key, out T? value)
+    {
+        var success = SharedDataService.TryGetData<T>(key, out value);
+        Logger.LogDebug("尝试获取共享数据: {Key}, 成功: {Success}", key, success);
+        return success;
     }
 } 

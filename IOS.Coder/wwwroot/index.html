@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOS.Coder - 读码器微服务</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #2196F3;
+        }
+
+        .status-card h3 {
+            margin: 0 0 15px 0;
+            color: #2196F3;
+            font-size: 1.3em;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .features {
+            margin-top: 40px;
+        }
+
+        .features h2 {
+            color: #2196F3;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .feature-item h4 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+
+        .feature-item p {
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .endpoints {
+            margin-top: 40px;
+        }
+
+        .endpoint-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FF9800;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            background: #FF9800;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IOS.Coder</h1>
+            <p>读码器数据采集与MQTT传输微服务</p>
+        </div>
+
+        <div class="content">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>服务状态</h3>
+                    <div id="serviceStatus" class="status-value loading">加载中...</div>
+                    <div id="serviceTime" class="status-time"></div>
+                </div>
+
+                <div class="status-card">
+                    <h3>读码器状态</h3>
+                    <div id="coderStatus" class="status-value loading">加载中...</div>
+                    <div id="coderTime" class="status-time"></div>
+                </div>
+
+                <div class="status-card">
+                    <h3>最新数据</h3>
+                    <div id="lastData" class="status-value loading">加载中...</div>
+                    <div id="dataTime" class="status-time"></div>
+                </div>
+
+                <div class="status-card">
+                    <h3>连接配置</h3>
+                    <div id="connectionConfig" class="status-value loading">加载中...</div>
+                    <div class="status-time">串口通信配置</div>
+                </div>
+            </div>
+
+            <div class="features">
+                <h2>服务特性</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4>串口通信</h4>
+                        <p>支持多种串口参数配置，自动重连机制，确保稳定的数据采集</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>MQTT传输</h4>
+                        <p>实时将读码器数据发布到MQTT代理，支持标准消息格式</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>消息处理</h4>
+                        <p>支持多种消息类型处理，包括服务控制和配置更新</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>状态监控</h4>
+                        <p>实时监控读码器连接状态和数据采集状态</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>配置管理</h4>
+                        <p>支持动态配置更新，无需重启服务即可应用新配置</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>错误处理</h4>
+                        <p>完善的异常处理机制，自动恢复和错误日志记录</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoints">
+                <h2>API端点</h2>
+                <div class="endpoint-item">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/health</span>
+                    <p>获取服务健康状态和最新数据</p>
+                </div>
+                <div class="endpoint-item">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/config</span>
+                    <p>获取当前服务配置信息</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 IOS.Coder 微服务 | 基于 .NET 8 构建 | 支持实时数据采集与MQTT传输</p>
+        </div>
+    </div>
+
+    <script>
+        // 更新服务状态
+        async function updateStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                // 更新服务状态
+                document.getElementById('serviceStatus').textContent = data.Status || '未知';
+                document.getElementById('serviceStatus').className = 'status-value';
+                document.getElementById('serviceTime').textContent = `更新时间: ${new Date(data.Timestamp).toLocaleString()}`;
+                
+                // 更新读码器状态
+                const coderStatus = data.Configuration || '未配置';
+                document.getElementById('coderStatus').textContent = typeof coderStatus === 'string' ? coderStatus : '已配置';
+                document.getElementById('coderStatus').className = 'status-value';
+                
+                // 更新最新数据
+                const lastData = data.LastData || '暂无数据';
+                document.getElementById('lastData').textContent = lastData;
+                document.getElementById('lastData').className = 'status-value';
+                
+                if (data.LastDataTime) {
+                    document.getElementById('dataTime').textContent = `数据时间: ${new Date(data.LastDataTime).toLocaleString()}`;
+                }
+                
+            } catch (error) {
+                console.error('获取状态失败:', error);
+                document.getElementById('serviceStatus').innerHTML = '<span class="error">获取状态失败</span>';
+            }
+        }
+
+        // 更新配置信息
+        async function updateConfig() {
+            try {
+                const response = await fetch('/config');
+                const data = await response.json();
+                
+                if (data.CoderConfig) {
+                    const config = data.CoderConfig;
+                    const configText = `${config.SerialPort || 'COM1'} @ ${config.BaudRate || 9600}`;
+                    document.getElementById('connectionConfig').textContent = configText;
+                    document.getElementById('connectionConfig').className = 'status-value';
+                }
+                
+            } catch (error) {
+                console.error('获取配置失败:', error);
+                document.getElementById('connectionConfig').innerHTML = '<span class="error">获取配置失败</span>';
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            updateConfig();
+            
+            // 每5秒更新一次状态
+            setInterval(updateStatus, 5000);
+        });
+    </script>
+</body>
+</html> 

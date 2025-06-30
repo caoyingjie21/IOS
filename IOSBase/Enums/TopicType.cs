@@ -32,9 +32,29 @@ namespace IOS.Base.Enums
         Coder,
 
         /// <summary>
+        /// 读码器结果数据主题
+        /// </summary>
+        [Description("CoderResult")]
+        CoderResult,
+
+        /// <summary>
+        /// 读码器状态主题
+        /// </summary>
+        [Description("CoderStatus")]
+        CoderStatus,
+
+        /// <summary>
         /// 调度器相关主题
         /// </summary>
         [Description("Scheduler")]
-        Scheduler
+        Scheduler,
+
+        /// <summary>
+        /// 相机高度
+        /// </summary>
+        [Description("VisionHeight")]
+        VisionHeight
+
+
     }
 } 

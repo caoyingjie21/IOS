@@ -20,6 +20,7 @@ builder.Services.AddTransient<CameraResultHandler>();
 builder.Services.AddTransient<MotionCompleteHandler>();
 builder.Services.AddTransient<CoderCompleteHandler>();
 builder.Services.AddTransient<DefaultMessageHandler>();
+builder.Services.AddTransient<HeightResultHandler>();
 
 // 注册消息处理器工厂
 builder.Services.AddSingleton<SchedulerMessageHandlerFactory>();

@@ -1,6 +1,7 @@
 using IOS.Base.Messaging;
 using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
+using IOS.Base.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using IOS.Base.Enums;
@@ -15,7 +16,8 @@ public class GratingTriggerHandler : SchedulerBaseMessageHandler
     public GratingTriggerHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<GratingTriggerHandler> logger) : base(mqttService, mqttOptions, logger)
+        SharedDataService sharedDataService,
+        ILogger<GratingTriggerHandler> logger) : base(mqttService, mqttOptions, sharedDataService, logger)
     {
     }
 
@@ -23,11 +25,20 @@ public class GratingTriggerHandler : SchedulerBaseMessageHandler
     {
         Logger.LogInformation("处理光栅触发消息: {Message}", message);
         
+        // 保存光栅触发时间到共享数据
+        SaveSharedData("TriggerTime", DateTime.UtcNow);
+        SaveSharedData("TriggerMessage", message);
+        
         // 解析消息并触发相应的视觉检测
-        var visionTopic = GetPublishTopic(TopicType.Vision);
+        var visionTopic = GetPublishTopic(TopicType.VisionHeight);
         if (!string.IsNullOrEmpty(visionTopic))
         {
-            var visionData = new { Command = "start_detection" };
+            var visionData = new { 
+                Command = "start_detection",
+                TriggerTime = DateTime.UtcNow,
+                TriggerSource = "grating_sensor",
+                Direction = message
+            };
             await PublishMessageAsync(visionTopic, visionData, "vision_start");
             Logger.LogDebug("已发送视觉检测启动消息到主题: {Topic}", visionTopic);
         }

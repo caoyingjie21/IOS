@@ -66,20 +66,25 @@ public class SchedulerMessageHandlerFactory : MessageHandlerFactory
         var handlerTypes = GetAllHandlerTypes();
         Logger.LogInformation("发现 {Count} 个消息处理器类", handlerTypes.Count);
         
-        // 为每个订阅主题寻找对应的处理器
-        if (_mqttOptions?.Topics?.Subscriptions != null)
+        // 从配置的Subscribe字典中获取主题映射
+        if (_mqttOptions?.Topics?.Subscribe != null)
         {
-            foreach (var topic in _mqttOptions.Topics.Subscriptions)
+            foreach (var topicPair in _mqttOptions.Topics.Subscribe)
             {
-                var handlerType = FindHandlerForTopic(topic, handlerTypes);
+                var topicKey = topicPair.Key;      // 例如: "Sensor", "Vision", "Motion" 等
+                var topicValue = topicPair.Value;  // 例如: "ios/v1/sensor/grating/trigger"
+                
+                var handlerType = FindHandlerByTopicKey(topicKey, handlerTypes);
                 if (handlerType != null)
                 {
-                    mappings[topic] = handlerType;
-                    Logger.LogInformation("自动映射: {Topic} -> {HandlerType}", topic, handlerType.Name);
+                    mappings[topicValue] = handlerType;
+                    Logger.LogInformation("字典映射: {TopicKey}({TopicValue}) -> {HandlerType}", 
+                        topicKey, topicValue, handlerType.Name);
                 }
                 else
                 {
-                    Logger.LogWarning("未找到主题 {Topic} 对应的处理器，将使用默认处理器", topic);
+                    Logger.LogWarning("未找到主题键 {TopicKey}({TopicValue}) 对应的处理器，将使用默认处理器", 
+                        topicKey, topicValue);
                 }
             }
         }
@@ -118,7 +123,63 @@ public class SchedulerMessageHandlerFactory : MessageHandlerFactory
     }
 
     /// <summary>
-    /// 根据主题查找对应的处理器 - 基于命名约定
+    /// 根据主题键查找对应的处理器 - 基于配置字典的键
+    /// </summary>
+    private Type? FindHandlerByTopicKey(string topicKey, List<Type> handlerTypes)
+    {
+        Logger.LogDebug("为主题键 {TopicKey} 查找处理器", topicKey);
+        
+        // 直接根据主题键匹配处理器名称
+        foreach (var handlerType in handlerTypes)
+        {
+            if (IsHandlerMatchTopicKey(handlerType.Name, topicKey))
+            {
+                Logger.LogDebug("找到匹配的处理器: {TopicKey} -> {HandlerType}", topicKey, handlerType.Name);
+                return handlerType;
+            }
+        }
+        
+        Logger.LogDebug("未找到主题键 {TopicKey} 的匹配处理器", topicKey);
+        return null;
+    }
+
+    /// <summary>
+    /// 检查处理器名称是否匹配主题键
+    /// </summary>
+    private bool IsHandlerMatchTopicKey(string handlerName, string topicKey)
+    {
+        // 移除Handler后缀
+        var baseName = handlerName.Replace("Handler", "");
+        
+        Logger.LogTrace("检查处理器 {HandlerName} (基名: {BaseName}) 是否匹配主题键 {TopicKey}", 
+            handlerName, baseName, topicKey);
+        
+        // 直接匹配或包含关系
+        bool isMatch = baseName.Contains(topicKey, StringComparison.OrdinalIgnoreCase) ||
+                       topicKey.Contains(baseName, StringComparison.OrdinalIgnoreCase);
+        
+        // 特殊映射规则
+        if (!isMatch)
+        {
+            isMatch = topicKey switch
+            {
+                "Sensor" => baseName.Contains("Grating", StringComparison.OrdinalIgnoreCase),
+                "Vision" => baseName.Contains("Camera", StringComparison.OrdinalIgnoreCase),
+                "VisionHeight" => baseName.Contains("Height", StringComparison.OrdinalIgnoreCase),
+                "Motion" => baseName.Contains("Motion", StringComparison.OrdinalIgnoreCase),
+                "Coder" => baseName.Contains("Coder", StringComparison.OrdinalIgnoreCase),
+                _ => false
+            };
+        }
+        
+        Logger.LogTrace("处理器 {HandlerName} 与主题键 {TopicKey} 匹配结果: {IsMatch}", 
+            handlerName, topicKey, isMatch);
+        
+        return isMatch;
+    }
+
+    /// <summary>
+    /// 根据主题查找对应的处理器 - 基于命名约定（保留用于兼容性）
     /// </summary>
     private Type? FindHandlerForTopic(string topic, List<Type> handlerTypes)
     {

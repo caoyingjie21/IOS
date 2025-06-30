@@ -23,15 +23,15 @@ public class StandardMqttOptions
 /// </summary>
 public class TopicsOptions
 {
-    /// <summary>
-    /// 订阅主题列表
-    /// </summary>
-    public List<string> Subscriptions { get; set; } = new();
+    ///// <summary>
+    ///// 订阅主题列表
+    ///// </summary>
+    //public List<string> Subscriptions { get; set; } = new();
 
-    /// <summary>
-    /// 发布主题列表
-    /// </summary>
-    public List<string> Publications { get; set; } = new();
+    ///// <summary>
+    ///// 发布主题列表
+    ///// </summary>
+    //public List<string> Publications { get; set; } = new();
 
     /// <summary>
     /// 订阅主题字典（键值对形式）

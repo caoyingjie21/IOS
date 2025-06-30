@@ -1,6 +1,7 @@
 using IOS.Base.Messaging;
 using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
+using IOS.Base.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,7 +15,8 @@ public class CoderCompleteHandler : SchedulerBaseMessageHandler
     public CoderCompleteHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<CoderCompleteHandler> logger) : base(mqttService, mqttOptions, logger)
+        SharedDataService sharedDataService,
+        ILogger<CoderCompleteHandler> logger) : base(mqttService, mqttOptions, sharedDataService, logger)
     {
     }
 
@@ -26,16 +28,44 @@ public class CoderCompleteHandler : SchedulerBaseMessageHandler
         var coderResult = DeserializeMessage<CoderResultData>(message);
         if (coderResult != null)
         {
+            // 保存编码完成信息
+            SaveSharedData("LastCoderCompleteTime", DateTime.UtcNow);
+            SaveSharedData("LastCoderResult", coderResult);
+            
+            // 计算编码执行时间
+            if (TryGetSharedData<DateTime>("LastCoderRequestTime", out var requestTime))
+            {
+                var executionTime = DateTime.UtcNow - requestTime;
+                Logger.LogInformation("编码执行时间: {ExecutionTime}ms", executionTime.TotalMilliseconds);
+                SaveSharedData("LastCoderExecutionTime", executionTime);
+            }
+            
             if (coderResult.IsSuccess)
             {
                 Logger.LogInformation("编码操作成功完成，编码ID: {CodeId}", coderResult.CodeId);
-                // 这里可以添加更新订单状态的逻辑
+                
+                // 更新成功统计
+                var successCount = GetSharedData<int>("CoderSuccessCount");
+                SaveSharedData("CoderSuccessCount", successCount + 1);
+                
+                // 计算整个流程的总时间
+                if (TryGetSharedData<DateTime>("LastGratingTriggerTime", out var triggerTime))
+                {
+                    var totalProcessTime = DateTime.UtcNow - triggerTime;
+                    Logger.LogInformation("整个流程总时间: {TotalTime}ms", totalProcessTime.TotalMilliseconds);
+                    SaveSharedData("LastTotalProcessTime", totalProcessTime);
+                }
+                
                 await UpdateOrderStatusAsync(coderResult);
             }
             else
             {
                 Logger.LogError("编码操作失败: {ErrorMessage}", coderResult.ErrorMessage);
-                // 这里可以添加错误处理逻辑
+                
+                // 更新失败统计
+                var failureCount = GetSharedData<int>("CoderFailureCount");
+                SaveSharedData("CoderFailureCount", failureCount + 1);
+                SaveSharedData("LastCoderError", coderResult.ErrorMessage);
             }
         }
     }
@@ -50,6 +80,11 @@ public class CoderCompleteHandler : SchedulerBaseMessageHandler
         // 可以在这里添加更新订单状态的逻辑
         // 例如发送状态更新消息到订单系统
         Logger.LogDebug("更新订单状态，编码ID: {CodeId}", coderResult.CodeId);
+        
+        // 保存订单更新信息
+        SaveSharedData("LastOrderUpdateTime", DateTime.UtcNow);
+        SaveSharedData("LastOrderId", coderResult.CodeId);
+        
         await Task.CompletedTask;
     }
 }

@@ -1,6 +1,7 @@
 using IOS.Base.Messaging;
 using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
+using IOS.Base.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using IOS.Base.Enums;
@@ -15,7 +16,8 @@ public class CameraResultHandler : SchedulerBaseMessageHandler
     public CameraResultHandler(
         IMqttService mqttService,
         IOptions<StandardMqttOptions> mqttOptions,
-        ILogger<CameraResultHandler> logger) : base(mqttService, mqttOptions, logger)
+        SharedDataService sharedDataService,
+        ILogger<CameraResultHandler> logger) : base(mqttService, mqttOptions, sharedDataService, logger)
     {
     }
 
@@ -27,6 +29,19 @@ public class CameraResultHandler : SchedulerBaseMessageHandler
         var cameraResult = DeserializeMessage<CameraResultData>(message);
         if (cameraResult != null)
         {
+            // 保存检测结果到共享数据
+            SaveSharedData("LastDetectionResult", cameraResult.IsValid ? "Valid" : "Invalid");
+            SaveSharedData("LastDetectionTime", DateTime.UtcNow);
+            SaveSharedData("LastCameraResult", cameraResult);
+            
+            // 获取光栅触发时间进行关联
+            if (TryGetSharedData<DateTime>("LastGratingTriggerTime", out var triggerTime))
+            {
+                var processingTime = DateTime.UtcNow - triggerTime;
+                Logger.LogInformation("检测处理时间: {ProcessingTime}ms", processingTime.TotalMilliseconds);
+                SaveSharedData("LastProcessingTime", processingTime);
+            }
+            
             // 根据检测结果决定是否触发运动控制
             if (cameraResult.IsValid)
             {
@@ -35,6 +50,7 @@ public class CameraResultHandler : SchedulerBaseMessageHandler
             else
             {
                 Logger.LogWarning("相机检测结果无效，跳过运动控制");
+                SaveSharedData("LastErrorMessage", cameraResult.ErrorMessage ?? "检测结果无效");
             }
         }
     }
@@ -49,9 +65,16 @@ public class CameraResultHandler : SchedulerBaseMessageHandler
         var motionTopic = GetPublishTopic(TopicType.Motion);
         if (!string.IsNullOrEmpty(motionTopic))
         {
-            var motionData = new { Command = "move_to_position" };
+            var motionData = new { 
+                Command = "move_to_position",
+                RequestTime = DateTime.UtcNow,
+                Source = "camera_detection"
+            };
             await PublishMessageAsync(motionTopic, motionData, "motion_control");
             Logger.LogDebug("已发送运动控制消息到主题: {Topic}", motionTopic);
+            
+            // 保存运动控制请求时间
+            SaveSharedData("LastMotionRequestTime", DateTime.UtcNow);
         }
     }
 }
