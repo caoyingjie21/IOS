@@ -67,6 +67,9 @@ namespace IOS.Base.Services
                 // 调用派生类的清理方法
                 await OnServiceStoppingAsync(cancellationToken);
                 
+                // 取消订阅所有主题
+                await UnsubscribeFromTopicsAsync(cancellationToken);
+                
                 // 停止MQTT服务
                 if (_mqttService != null)
                 {
@@ -186,7 +189,6 @@ namespace IOS.Base.Services
         /// <summary>
         /// 订阅MQTT主题
         /// </summary>
- 
         protected virtual async Task SubscribeToTopicsAsync(CancellationToken cancellationToken)
         {
             if (_mqttOptions.Topics.Subscribe?.Any() == true)
@@ -201,6 +203,28 @@ namespace IOS.Base.Services
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "订阅主题失败: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 取消订阅MQTT主题
+        /// </summary>
+        protected virtual async Task UnsubscribeFromTopicsAsync(CancellationToken cancellationToken)
+        {
+            if (_mqttOptions.Topics.Subscribe?.Any() == true)
+            {
+                foreach (var topicPair in _mqttOptions.Topics.Subscribe)
+                {
+                    try
+                    {
+                        await _mqttService.UnsubscribeAsync(topicPair.Value, cancellationToken);
+                        _logger.LogInformation("已取消订阅主题: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "取消订阅主题失败: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
                     }
                 }
             }

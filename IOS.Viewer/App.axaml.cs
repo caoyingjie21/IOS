@@ -7,6 +7,7 @@ using Avalonia.Controls;
 
 using IOS.Viewer.ViewModels;
 using IOS.Viewer.Views;
+using IOS.Viewer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +16,7 @@ using IOS.Base.Extensions;
 using IOS.Base.Mqtt;
 using IOS.Base.Configuration;
 using Serilog;
+using Serilog.Events;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ public partial class App : Application
 {
     private IServiceProvider? _serviceProvider;
     private IConfiguration? _configuration;
+    private IHost? _host;
 
     public override void Initialize()
     {
@@ -52,31 +55,41 @@ public partial class App : Application
 
         _configuration = builder.Build();
 
-        // 配置Serilog
+        var logsDirectory = Path.Combine(basePath, "logs");
+        if (!Directory.Exists(logsDirectory))
+        {
+            Directory.CreateDirectory(logsDirectory);
+        }
+        
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(_configuration)
             .CreateLogger();
 
-        var services = new ServiceCollection();
+        // 创建Host Builder
+        var hostBuilder = Host.CreateDefaultBuilder()
+            .UseSerilog(Log.Logger)
+            .ConfigureServices((context, services) =>
+            {
+                // 注册配置
+                services.AddSingleton<IConfiguration>(_configuration);
 
-        // 注册配置
-        services.AddSingleton<IConfiguration>(_configuration);
+                // 注册日志服务
+                services.AddLogging(loggingBuilder =>
+                {
+                    loggingBuilder.ClearProviders();
+                    loggingBuilder.AddSerilog(Log.Logger);
+                });
 
-        // 注册日志服务
-        services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.ClearProviders();
-            loggingBuilder.AddSerilog(Log.Logger);
-        });
+                services.AddIOSBase(_configuration);
 
-        // 添加IOSBase服务（包含MQTT）
-        services.AddIOSBase(_configuration);
+                services.AddTransient<MainViewModel>();
 
-        // 注册ViewModels
-        services.AddTransient<MainViewModel>();
+                services.AddHostedService<ViewerHostService>();
+            });
 
-        // 构建服务提供者
-        _serviceProvider = services.BuildServiceProvider();
+        // 构建Host
+        _host = hostBuilder.Build();
+        _serviceProvider = _host.Services;
 
         // 获取日志器并记录启动信息
         var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
@@ -107,23 +120,22 @@ public partial class App : Application
             // 注册应用程序退出事件
             desktop.ShutdownRequested += OnShutdownRequested;
 
-            // 启动MQTT服务
+            // 启动后台服务
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var mqttService = _serviceProvider?.GetRequiredService<IMqttService>();
-                    if (mqttService != null)
+                    if (_host != null)
                     {
-                        await mqttService.StartAsync();
+                        await _host.StartAsync();
                         var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
-                        logger?.LogInformation("MQTT服务已启动");
+                        logger?.LogInformation("后台服务已启动");
                     }
                 }
                 catch (Exception ex)
                 {
                     var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
-                    logger?.LogError(ex, "启动MQTT服务时发生错误");
+                    logger?.LogError(ex, "启动后台服务时发生错误");
                 }
             });
         }
@@ -141,23 +153,22 @@ public partial class App : Application
             // UserControl 没有 RequestedThemeVariant 属性
             singleViewPlatform.MainView = mainView;
 
-            // 启动MQTT服务
+            // 启动后台服务
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var mqttService = _serviceProvider?.GetRequiredService<IMqttService>();
-                    if (mqttService != null)
+                    if (_host != null)
                     {
-                        await mqttService.StartAsync();
+                        await _host.StartAsync();
                         var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
-                        logger?.LogInformation("MQTT服务已启动（移动平台）");
+                        logger?.LogInformation("后台服务已启动（移动平台）");
                     }
                 }
                 catch (Exception ex)
                 {
                     var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
-                    logger?.LogError(ex, "启动MQTT服务时发生错误（移动平台）");
+                    logger?.LogError(ex, "启动后台服务时发生错误（移动平台）");
                 }
             });
         }
@@ -175,12 +186,12 @@ public partial class App : Application
             var logger = _serviceProvider?.GetRequiredService<ILogger<App>>();
             logger?.LogInformation("应用程序正在退出...");
 
-            // 停止MQTT服务
-            var mqttService = _serviceProvider?.GetRequiredService<IMqttService>();
-            if (mqttService != null)
+            // 停止后台服务
+            if (_host != null)
             {
-                mqttService.StopAsync().Wait(TimeSpan.FromSeconds(5));
-                logger?.LogInformation("MQTT服务已停止");
+                _host.StopAsync(TimeSpan.FromSeconds(10)).Wait(TimeSpan.FromSeconds(15));
+                _host.Dispose();
+                logger?.LogInformation("后台服务已停止");
             }
 
             // 释放服务提供者
