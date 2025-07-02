@@ -13,15 +13,96 @@
 	<Grid Background="#F5F7FA">
 		<!-- 主要内容区域 -->
 		<Grid Margin="10">
-			<!-- 面板内容 -->
+			<!-- 面板内容 - MQTT消息显示 -->
 			<suki:GlassCard IsVisible="{Binding IsPanelSelected}" Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
-				<Grid>
-					<TextBlock Text="面板内容区域" 
-							   HorizontalAlignment="Center" 
-							   VerticalAlignment="Center"
-							   FontSize="18" 
+				<Grid Margin="20">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					
+					<!-- 标题 -->
+					<TextBlock Grid.Row="0" 
+							   Text="MQTT消息监控" 
+							   FontSize="24" 
+							   FontWeight="Bold"
+							   Foreground="#2C3E50"
+							   HorizontalAlignment="Center"
+							   Margin="0,0,0,20"/>
+					
+					<!-- 当前消息标签 -->
+					<TextBlock Grid.Row="1" 
+							   Text="当前消息:" 
+							   FontSize="16" 
 							   FontWeight="SemiBold"
-							   Foreground="#2C3E50" />
+							   Foreground="#34495E"
+							   Margin="0,0,0,10"/>
+					
+					<!-- 当前消息显示区域 -->
+					<Border Grid.Row="2" 
+							Background="#ECF0F1" 
+							BorderBrush="#BDC3C7" 
+							BorderThickness="1" 
+							CornerRadius="5"
+							Padding="15"
+							Margin="0,0,0,20">
+						<TextBlock Text="{Binding CurrentMqttMessage}" 
+								   FontSize="14"
+								   Foreground="#2C3E50"
+								   TextWrapping="Wrap"
+								   FontFamily="Consolas, Monaco, 'Courier New', monospace"/>
+					</Border>
+					
+					<!-- 历史消息列表 -->
+					<Grid Grid.Row="3">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+						
+						<TextBlock Grid.Row="0" 
+								   Text="消息历史:" 
+								   FontSize="16" 
+								   FontWeight="SemiBold"
+								   Foreground="#34495E"
+								   Margin="0,0,0,10"/>
+						
+						<Border Grid.Row="1" 
+								Background="#FAFBFC" 
+								BorderBrush="#E1E8ED" 
+								BorderThickness="1" 
+								CornerRadius="5">
+							<ListBox ItemsSource="{Binding MqttMessages}"
+									 Background="Transparent"
+									 BorderThickness="0"
+									 Padding="10">
+								<ListBox.ItemTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding}" 
+												   FontSize="12"
+												   Foreground="#2C3E50"
+												   TextWrapping="Wrap"
+												   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+												   Margin="0,2"/>
+									</DataTemplate>
+								</ListBox.ItemTemplate>
+							</ListBox>
+						</Border>
+					</Grid>
+					
+					<!-- 清空按钮 -->
+					<Button Grid.Row="4" 
+							Content="清空消息历史" 
+							Command="{Binding ClearMqttMessagesCommand}"
+							HorizontalAlignment="Center"
+							Background="#E74C3C"
+							Foreground="White"
+							Padding="20,10"
+							CornerRadius="20"
+							Margin="0,20,0,0"/>
 				</Grid>
 			</suki:GlassCard>
 			

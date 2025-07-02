@@ -17,6 +17,11 @@ namespace IOS.Viewer.Services;
 /// </summary>
 public class ViewerHostService : BaseHostService
 {
+    /// <summary>
+    /// MQTT消息接收事件，用于向UI层传递消息
+    /// </summary>
+    public static event Action<string, string>? MqttMessageReceived;
+
     public ViewerHostService(
         IMqttService mqttService,
         ILogger<ViewerHostService> logger,
@@ -54,6 +59,9 @@ public class ViewerHostService : BaseHostService
         
         try
         {
+            // 触发事件，将消息传递给UI层
+            MqttMessageReceived?.Invoke(topic, message);
+            
             // 这里可以添加消息处理逻辑
             // 例如：更新UI状态、处理命令等
             

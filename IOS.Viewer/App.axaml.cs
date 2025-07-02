@@ -82,7 +82,7 @@ public partial class App : Application
 
                 services.AddIOSBase(_configuration);
 
-                services.AddTransient<MainViewModel>();
+                services.AddSingleton<MainViewModel>();
 
                 services.AddHostedService<ViewerHostService>();
             });
