@@ -8,5 +8,17 @@
     <item name="android:windowActionBar">false</item>
     <item name="android:windowBackground">@drawable/splash_screen</item>
     <item name="android:windowNoTitle">true</item>
+    <item name="android:forceDarkAllowed">true</item>
+    <item name="android:windowLightStatusBar">false</item>
   </style>
+
+  <!-- 暗色主题样式 -->
+  <style name="MyTheme.Dark" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowBackground">@drawable/splash_screen</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:forceDarkAllowed">true</item>
+    <item name="android:windowLightStatusBar">false</item>
+  </style>
+
 </resources>

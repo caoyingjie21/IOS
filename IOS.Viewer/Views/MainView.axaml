@@ -4,12 +4,75 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:IOS.Viewer.ViewModels"
 			 xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
+			 xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="IOS.Viewer.Views.MainView"
              x:DataType="vm:MainViewModel">
-	<Panel Height="200" Width="200">
+	
+	<!-- 请告诉我您希望如何设计这个界面 -->
+	<Grid Background="#F5F7FA">
+		<!-- 主要内容区域 -->
+		<Grid Margin="10">
+			<!-- 面板内容 -->
+			<suki:GlassCard IsVisible="{Binding IsPanelSelected}" Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
+				<Grid>
+					<TextBlock Text="面板内容区域" 
+							   HorizontalAlignment="Center" 
+							   VerticalAlignment="Center"
+							   FontSize="18" 
+							   FontWeight="SemiBold"
+							   Foreground="#2C3E50" />
+				</Grid>
+			</suki:GlassCard>
+			
+			<!-- 设置内容 -->
+			<suki:GlassCard IsVisible="{Binding IsSettingsSelected}" Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
+				<Grid>
+					<TextBlock Text="设置内容区域" 
+							   HorizontalAlignment="Center" 
+							   VerticalAlignment="Center"
+							   FontSize="18" 
+							   FontWeight="SemiBold"
+							   Foreground="#2C3E50" />
+				</Grid>
+			</suki:GlassCard>
+		</Grid>
 		
-	</Panel>
-
+		<!-- 右下角圆形导航按钮 -->
+		<StackPanel Orientation="Vertical" 
+					HorizontalAlignment="Right" 
+					VerticalAlignment="Bottom" 
+					Margin="20" 
+					Spacing="15">
+			
+			<!-- 面板按钮 -->
+			<Button Width="60" 
+					Height="60"
+					CornerRadius="30"
+					Background="#4A90E2"
+					BorderThickness="0"
+					Command="{Binding ShowPanelCommand}"
+					Classes="Accent">
+				<materialIcons:MaterialIcon Kind="{Binding PanelIcon}" 
+											Foreground="White" 
+											Width="24" 
+											Height="24" />
+			</Button>
+			
+			<!-- 设置按钮 -->
+			<Button Width="60" 
+					Height="60"
+					CornerRadius="30"
+					Background="#7B68EE"
+					BorderThickness="0"
+					Command="{Binding ShowSettingsCommand}"
+					Classes="Accent">
+				<materialIcons:MaterialIcon Kind="{Binding SettingsIcon}" 
+											Foreground="White" 
+											Width="24" 
+											Height="24" />
+			</Button>
+		</StackPanel>
+	</Grid>
 
 </UserControl>

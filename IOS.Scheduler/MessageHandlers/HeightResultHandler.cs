@@ -36,12 +36,13 @@ namespace IOS.Scheduler.MessageHandlers
                 SaveSharedData("LastHeightProcessingTime", processingTime);
             }
             
+
             var motionTopic = GetPublishTopic(TopicType.Motion);
             if (!string.IsNullOrEmpty(motionTopic))
             {
                 var motionData = new { 
                     Command = "move_to_height",
-                    HeightData = message,
+                    Paulse = message,
                     RequestTime = DateTime.UtcNow,
                     Source = "height_detection"
                 };

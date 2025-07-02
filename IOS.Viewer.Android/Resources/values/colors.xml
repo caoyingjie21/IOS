@@ -1,4 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- 日间模式颜色配置 -->
   <color name="splash_background">#FFFFFF</color>
+  <color name="primary">#FFFFFF</color>
+  <color name="primaryDark">#F5F5F5</color>
+  <color name="surface">#FFFFFF</color>
+  <color name="background">#FFFFFF</color>
+  <color name="onPrimary">#000000</color>
+  <color name="onSurface">#000000</color>
+  <color name="onBackground">#000000</color>
 </resources>

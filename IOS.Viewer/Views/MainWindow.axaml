@@ -1,12 +1,61 @@
-<Window xmlns="https://github.com/avaloniaui"
+<suki:SukiWindow xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:IOS.Viewer.ViewModels"
+		xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:IOS.Viewer.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="IOS.Viewer.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="IOS.Viewer">
-        <views:MainView />
-</Window>
+        Title="自动出库系统">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- 菜单栏 - 仅在桌面平台显示 -->
+        <Menu Grid.Row="0" Background="{DynamicResource SukiPrimaryColor}" IsVisible="{Binding !IsMobile}">
+            <MenuItem Header="文件">
+                <MenuItem Header="新建" InputGesture="Ctrl+N" />
+                <MenuItem Header="打开" InputGesture="Ctrl+O" />
+                <MenuItem Header="保存" InputGesture="Ctrl+S" />
+                <Separator />
+                <MenuItem Header="退出" InputGesture="Alt+F4" />
+            </MenuItem>
+            
+            <MenuItem Header="编辑">
+                <MenuItem Header="撤销" InputGesture="Ctrl+Z" />
+                <MenuItem Header="重做" InputGesture="Ctrl+Y" />
+                <Separator />
+                <MenuItem Header="复制" InputGesture="Ctrl+C" />
+                <MenuItem Header="粘贴" InputGesture="Ctrl+V" />
+            </MenuItem>
+            
+            <MenuItem Header="视图">
+                <MenuItem Header="刷新" InputGesture="F5" />
+                <MenuItem Header="全屏" InputGesture="F11" />
+                <Separator />
+                <MenuItem Header="显示工具栏" />
+                <MenuItem Header="显示状态栏" />
+            </MenuItem>
+            
+            <MenuItem Header="工具">
+                <MenuItem Header="选项" />
+                <MenuItem Header="导入数据" />
+                <MenuItem Header="导出数据" />
+            </MenuItem>
+            
+            <MenuItem Header="帮助">
+                <MenuItem Header="关于" />
+                <MenuItem Header="帮助文档" InputGesture="F1" />
+            </MenuItem>
+        </Menu>
+        
+        <!-- 主内容区域 -->
+        <views:MainView Grid.Row="1" />
+    </Grid>
+</suki:SukiWindow>

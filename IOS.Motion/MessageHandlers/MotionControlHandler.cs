@@ -40,10 +40,6 @@ public class MotionControlHandler : MotionBaseMessageHandler
                 return;
             }
 
-            // 保存运动请求时间
-            SaveSharedData("LastMotionRequestTime", DateTime.UtcNow);
-            SaveSharedData("LastMotionCommand", motionCommand.Data);
-
             // 模拟电机控制逻辑
             //var result = await ExecuteMotionAsync(motionCommand.Data);
 
