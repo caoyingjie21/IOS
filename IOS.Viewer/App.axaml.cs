@@ -20,6 +20,7 @@ using Serilog.Events;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace IOS.Viewer;
 
@@ -41,6 +42,61 @@ public partial class App : Application
     }
 
     /// <summary>
+    /// 获取日志目录路径
+    /// </summary>
+    private string GetLogDirectory()
+    {
+        var basePath = AppContext.BaseDirectory;
+        bool isAndroid = false;
+        
+        // 检测是否为Android平台
+        try
+        {
+            // 优先使用OperatingSystem.IsAndroid()方法（.NET 6+）
+            isAndroid = OperatingSystem.IsAndroid();
+        }
+        catch
+        {
+            // 如果不支持，使用RuntimeInformation检测
+            var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
+            isAndroid = runtimeIdentifier.Contains("android", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        string logsDirectory;
+        if (isAndroid)
+        {
+            // Android平台：直接使用Documents目录
+            logsDirectory = "/storage/emulated/0/Documents/IOSViewer_logs";
+        }
+        else
+        {
+            // 其他平台：使用应用程序基础目录
+            logsDirectory = Path.Combine(basePath, "logs");
+        }
+
+        // 确保目录存在
+        if (!Directory.Exists(logsDirectory))
+        {
+            Directory.CreateDirectory(logsDirectory);
+        }
+        
+        // 测试目录写入权限
+        try
+        {
+            var testFile = Path.Combine(logsDirectory, "test_write.tmp");
+            File.WriteAllText(testFile, "test");
+            File.Delete(testFile);
+            Console.WriteLine($"日志目录写入权限验证成功: {logsDirectory}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"日志目录写入权限验证失败: {logsDirectory}, 错误: {ex.Message}");
+        }
+
+        return logsDirectory;
+    }
+
+    /// <summary>
     /// 配置依赖注入服务
     /// </summary>
     private void ConfigureServices()
@@ -55,14 +111,36 @@ public partial class App : Application
 
         _configuration = builder.Build();
 
-        var logsDirectory = Path.Combine(basePath, "logs");
-        if (!Directory.Exists(logsDirectory))
-        {
-            Directory.CreateDirectory(logsDirectory);
-        }
+        // 获取日志目录并配置Serilog
+        var logsDirectory = GetLogDirectory();
+        var logFilePath = Path.Combine(logsDirectory, "ios-viewer-.txt");
+        Console.WriteLine($"配置日志文件路径: {logFilePath}");
         
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(_configuration)
+            .WriteTo.File(
+                path: logFilePath,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+            )
+            .CreateLogger();
+
+        // 立即写入测试日志并刷新，确保文件创建
+        Log.Information("=== IOS.Viewer 日志系统初始化完成 ===");
+        Log.Information("日志文件路径: {LogFilePath}", logFilePath);
+        Log.Information("日志目录: {LogsDirectory}", logsDirectory);
+        Log.CloseAndFlush();
+        
+        // 重新初始化Logger
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(_configuration)
+            .WriteTo.File(
+                path: logFilePath,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+            )
             .CreateLogger();
 
         // 创建Host Builder
@@ -83,6 +161,9 @@ public partial class App : Application
                 services.AddIOSBase(_configuration);
 
                 services.AddSingleton<MainViewModel>();
+                
+                // 注册导航服务
+                services.AddSingleton<INavigationService, NavigationService>();
 
                 services.AddHostedService<ViewerHostService>();
             });
@@ -95,6 +176,8 @@ public partial class App : Application
         var logger = _serviceProvider.GetRequiredService<ILogger<App>>();
         logger.LogInformation("IOS.Viewer 应用程序正在启动...");
         logger.LogInformation("配置文件基础路径: {BasePath}", basePath);
+        logger.LogInformation("日志文件存储路径: {LogsDirectory}", logsDirectory);
+        logger.LogInformation("检测到的平台: {Platform}", OperatingSystem.IsAndroid() ? "Android" : "其他平台");
     }
 
     public override void OnFrameworkInitializationCompleted()

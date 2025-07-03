@@ -9,12 +9,10 @@
              x:Class="IOS.Viewer.Views.MainView"
              x:DataType="vm:MainViewModel">
 	
-	<!-- 请告诉我您希望如何设计这个界面 -->
 	<Grid Background="#F5F7FA">
-		<!-- 主要内容区域 -->
-		<Grid Margin="10">
-			<!-- 面板内容 - MQTT消息显示 -->
-			<suki:GlassCard IsVisible="{Binding IsPanelSelected}" Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
+		<!-- 主要内容区域 - MQTT消息监控面板 -->
+		<Grid Margin="20">
+			<suki:GlassCard Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
 				<Grid Margin="20">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
@@ -26,8 +24,8 @@
 					
 					<!-- 标题 -->
 					<TextBlock Grid.Row="0" 
-							   Text="MQTT消息监控" 
-							   FontSize="24" 
+							   Text="IOS.Viewer - MQTT消息监控" 
+							   FontSize="28" 
 							   FontWeight="Bold"
 							   Foreground="#2C3E50"
 							   HorizontalAlignment="Center"
@@ -105,18 +103,6 @@
 							Margin="0,20,0,0"/>
 				</Grid>
 			</suki:GlassCard>
-			
-			<!-- 设置内容 -->
-			<suki:GlassCard IsVisible="{Binding IsSettingsSelected}" Background="#FFFFFF" BorderBrush="#E0E6ED" BorderThickness="1">
-				<Grid>
-					<TextBlock Text="设置内容区域" 
-							   HorizontalAlignment="Center" 
-							   VerticalAlignment="Center"
-							   FontSize="18" 
-							   FontWeight="SemiBold"
-							   Foreground="#2C3E50" />
-				</Grid>
-			</suki:GlassCard>
 		</Grid>
 		
 		<!-- 右下角圆形导航按钮 -->
@@ -126,15 +112,16 @@
 					Margin="20" 
 					Spacing="15">
 			
-			<!-- 面板按钮 -->
+			<!-- 日志按钮 -->
 			<Button Width="60" 
 					Height="60"
 					CornerRadius="30"
-					Background="#4A90E2"
+					Background="#27AE60"
 					BorderThickness="0"
-					Command="{Binding ShowPanelCommand}"
-					Classes="Accent">
-				<materialIcons:MaterialIcon Kind="{Binding PanelIcon}" 
+					Command="{Binding OpenLogFileCommand}"
+					Classes="Accent"
+					ToolTip.Tip="打开日志文件">
+				<materialIcons:MaterialIcon Kind="FileDocumentOutline" 
 											Foreground="White" 
 											Width="24" 
 											Height="24" />
@@ -146,9 +133,10 @@
 					CornerRadius="30"
 					Background="#7B68EE"
 					BorderThickness="0"
-					Command="{Binding ShowSettingsCommand}"
-					Classes="Accent">
-				<materialIcons:MaterialIcon Kind="{Binding SettingsIcon}" 
+					Command="{Binding NavigateToSettingsCommand}"
+					Classes="Accent"
+					ToolTip.Tip="系统设置">
+				<materialIcons:MaterialIcon Kind="Settings" 
 											Foreground="White" 
 											Width="24" 
 											Height="24" />
