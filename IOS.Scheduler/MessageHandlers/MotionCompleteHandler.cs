@@ -46,7 +46,8 @@ public class MotionCompleteHandler : SchedulerBaseMessageHandler
                 RequestTime = DateTime.UtcNow,
                 Source = "motion_complete"
             };
-            await PublishMessageAsync(coderTopic, coderData, "coder_start");
+            
+            await MqttService.PublishStandardMessageAsync(coderTopic, coderData, MessageType.Start);
             Logger.LogDebug("已发送编码器启动消息到主题: {Topic}", coderTopic);
             
             // 保存编码器请求时间

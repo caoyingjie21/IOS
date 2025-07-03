@@ -1,3 +1,4 @@
+using IOS.Base.Enums;
 using System.Text.Json.Serialization;
 
 namespace IOS.Base.Messaging
@@ -24,13 +25,13 @@ namespace IOS.Base.Messaging
         /// 时间戳
         /// </summary>
         [JsonPropertyName("timestamp")]
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public DateTime Timestamp { get; set; } = DateTime.Now;
 
         /// <summary>
         /// 消息类型
         /// </summary>
         [JsonPropertyName("messageType")]
-        public string MessageType { get; set; } = string.Empty;
+        public MessageType MessageType { get; set; }
 
         /// <summary>
         /// 发送者

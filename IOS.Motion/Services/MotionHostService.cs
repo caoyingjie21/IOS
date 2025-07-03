@@ -133,7 +133,14 @@ namespace IOS.Motion.Services
             var topic = GetPublishTopic(TopicType.Sensor);
             if (!string.IsNullOrEmpty(topic))
             {
-                await PublishMessageAsync(topic, statusData, "service_status", cancellationToken);
+                var message = new StandardMessage<object>
+                {
+                    MessageType = "service_status",
+                    Sender = "IOS.Motion",
+                    Data = statusData
+                };
+                
+                await _mqttService.PublishAsync(topic, message, cancellationToken);
             }
         }
 

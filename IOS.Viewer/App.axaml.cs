@@ -162,6 +162,9 @@ public partial class App : Application
 
                 services.AddSingleton<MainViewModel>();
                 
+                // 注册服务状态管理器
+                services.AddSingleton<ServiceStatusManager>();
+                
                 // 注册导航服务
                 services.AddSingleton<INavigationService, NavigationService>();
 

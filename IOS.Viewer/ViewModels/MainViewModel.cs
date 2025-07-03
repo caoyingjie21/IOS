@@ -19,10 +19,6 @@ namespace IOS.Viewer.ViewModels;
 
 public partial class MainViewModel : ObservableObject, IDisposable
 {
-    [ObservableProperty] private int _stepIndex = 1;
-    [ObservableProperty] private double _progressValue = 52;
-    [ObservableProperty] private bool _isTextVisible = true;
-    [ObservableProperty] private bool _isIndeterminate;
     
     // MQTT消息相关属性
     [ObservableProperty] private string _currentMqttMessage = "等待MQTT消息...";

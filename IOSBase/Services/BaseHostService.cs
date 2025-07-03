@@ -9,6 +9,7 @@ using IOS.Base.Messaging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using IOS.Base.Enums;
 
 namespace IOS.Base.Services
 {
@@ -227,48 +228,6 @@ namespace IOS.Base.Services
                         _logger.LogError(ex, "取消订阅主题失败: {Topic} (服务: {Service})", topicPair.Value, topicPair.Key);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// 发布标准消息
-        /// </summary>
-        protected async Task PublishMessageAsync<T>(string topic, T data, string messageType, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var message = new StandardMessage<T>
-                {
-                    MessageType = messageType,
-                    Sender = GetType().Name,
-                    Data = data,
-                    Version = _mqttOptions.Messages.Version
-                };
-
-                await _mqttService.PublishAsync(topic, message, cancellationToken);
-                _logger.LogDebug("已发布消息到主题: {Topic}, 类型: {MessageType}", topic, messageType);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "发布消息失败 - 主题: {Topic}, 类型: {MessageType}", topic, messageType);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 发布原始消息
-        /// </summary>
-        protected async Task PublishRawMessageAsync(string topic, string payload, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                await _mqttService.PublishAsync(topic, payload, cancellationToken);
-                _logger.LogDebug("已发布原始消息到主题: {Topic}", topic);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "发布原始消息失败 - 主题: {Topic}", topic);
-                throw;
             }
         }
     }

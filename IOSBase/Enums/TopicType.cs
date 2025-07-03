@@ -54,7 +54,26 @@ namespace IOS.Base.Enums
         /// </summary>
         [Description("VisionHeight")]
         VisionHeight
+    }
 
-
+    /// <summary>
+    /// 消息类型枚举，用于标识不同的消息类型
+    /// </summary>
+    public enum MessageType
+    {
+        /// <summary>
+        /// 启动消息
+        /// </summary>
+        Start,
+        
+        /// <summary>
+        /// 数据消息
+        /// </summary>
+        Data,
+        
+        /// <summary>
+        /// 停止消息
+        /// </summary>
+        Stop
     }
 } 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IOS.Base.Messaging;
+using IOS.Base.Enums;
 
 namespace IOS.Base.Mqtt
 {
@@ -38,6 +39,17 @@ namespace IOS.Base.Mqtt
         /// 发布原始消息
         /// </summary>
         Task PublishAsync(string topic, string payload, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 发布标准消息，自动生成StandardMessage包装
+        /// </summary>
+        /// <typeparam name="T">消息数据类型</typeparam>
+        /// <param name="topic">发布主题</param>
+        /// <param name="message">消息数据</param>
+        /// <param name="messageType">消息类型</param>
+        /// <param name="cancellationToken">取消令牌</param>
+        /// <returns></returns>
+        Task PublishStandardMessageAsync<T>(string topic, T message, MessageType messageType, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 订阅主题

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Avalonia.Threading;
 
 namespace IOS.Viewer.Services;
 
@@ -17,17 +18,27 @@ namespace IOS.Viewer.Services;
 /// </summary>
 public class ViewerHostService : BaseHostService
 {
+    private readonly ServiceStatusManager _serviceStatusManager;
+
     /// <summary>
     /// MQTT消息接收事件，用于向UI层传递消息
     /// </summary>
     public static event Action<string, string>? MqttMessageReceived;
 
+    /// <summary>
+    /// 获取服务状态管理器实例
+    /// </summary>
+    public static ServiceStatusManager? ServiceStatusManager { get; private set; }
+
     public ViewerHostService(
         IMqttService mqttService,
         ILogger<ViewerHostService> logger,
-        IOptions<StandardMqttOptions> mqttOptions)
+        IOptions<StandardMqttOptions> mqttOptions,
+        ServiceStatusManager serviceStatusManager)
         : base(mqttService, logger, mqttOptions)
     {
+        _serviceStatusManager = serviceStatusManager;
+        ServiceStatusManager = serviceStatusManager;
     }
 
     protected override async Task OnServiceStartingAsync(CancellationToken cancellationToken)
@@ -59,25 +70,17 @@ public class ViewerHostService : BaseHostService
         
         try
         {
-            // 触发事件，将消息传递给UI层
+            // 在UI线程上处理消息状态更新
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _serviceStatusManager.HandleMqttMessage(topic, message);
+            });
+            
+            // 触发事件，将消息传递给UI层（保持向后兼容）
             MqttMessageReceived?.Invoke(topic, message);
             
             // 这里可以添加消息处理逻辑
             // 例如：更新UI状态、处理命令等
-            
-            // 示例：处理不同类型的消息
-            if (topic.Contains("status"))
-            {
-                await HandleStatusMessage(topic, message);
-            }
-            else if (topic.Contains("command"))
-            {
-                await HandleCommandMessage(topic, message);
-            }
-            else
-            {
-                _logger.LogDebug("未处理的消息主题: {Topic}", topic);
-            }
         }
         catch (Exception ex)
         {
@@ -136,7 +139,14 @@ public class ViewerHostService : BaseHostService
         var topic = GetStatusPublishTopic();
         if (!string.IsNullOrEmpty(topic))
         {
-            await PublishMessageAsync(topic, statusData, "viewer_status", cancellationToken);
+            var message = new StandardMessage<object>
+            {
+                MessageType = "viewer_status",
+                Sender = "IOS.Viewer",
+                Data = statusData
+            };
+            
+            await _mqttService.PublishAsync(topic, message, cancellationToken);
             _logger.LogInformation("已发布Viewer状态: {Status}", status);
         }
         else

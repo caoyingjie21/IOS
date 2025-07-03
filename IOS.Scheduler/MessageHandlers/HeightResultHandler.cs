@@ -46,7 +46,8 @@ namespace IOS.Scheduler.MessageHandlers
                     RequestTime = DateTime.UtcNow,
                     Source = "height_detection"
                 };
-                await PublishMessageAsync(motionTopic, motionData, "motion_control");
+                
+                await MqttService.PublishStandardMessageAsync(motionTopic, motionData, MessageType.Data);
                 Logger.LogDebug("已发送电机消息到主题: {Topic}", motionTopic);
                 
                 // 保存运动控制请求时间

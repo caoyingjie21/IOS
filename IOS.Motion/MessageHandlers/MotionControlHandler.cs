@@ -77,7 +77,14 @@ public class MotionControlHandler : MotionBaseMessageHandler
                     Timestamp = DateTime.UtcNow
                 };
 
-                await PublishMessageAsync(completeTopic, errorData, "motion_error");
+                var errorMessage = new StandardMessage<object>
+                {
+                    MessageType = "motion_error",
+                    Sender = "IOS.Motion",
+                    Data = errorData
+                };
+
+                await MqttService.PublishAsync(completeTopic, errorMessage);
             }
         }
     }

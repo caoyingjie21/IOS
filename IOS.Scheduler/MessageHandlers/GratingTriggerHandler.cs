@@ -39,7 +39,8 @@ public class GratingTriggerHandler : SchedulerBaseMessageHandler
                 TriggerSource = "grating_sensor",
                 Direction = message
             };
-            await PublishMessageAsync(visionTopic, visionData, "vision_start");
+            
+            await MqttService.PublishStandardMessageAsync(visionTopic, visionData, MessageType.Start);
             Logger.LogDebug("已发送视觉检测启动消息到主题: {Topic}", visionTopic);
         }
     }

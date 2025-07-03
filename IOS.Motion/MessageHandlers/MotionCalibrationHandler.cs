@@ -71,7 +71,14 @@ public class MotionCalibrationHandler : MotionBaseMessageHandler
                     Timestamp = DateTime.UtcNow
                 };
 
-                await PublishMessageAsync(completeTopic, errorData, "calibration_error");
+                var errorMessage = new StandardMessage<object>
+                {
+                    MessageType = "calibration_error",
+                    Sender = "IOS.Motion",
+                    Data = errorData
+                };
+
+                await MqttService.PublishAsync(completeTopic, errorMessage);
             }
         }
     }

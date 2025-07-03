@@ -60,22 +60,6 @@ public abstract class MotionBaseMessageHandler : BaseMessageHandler
     }
 
     /// <summary>
-    /// 发布消息的便利方法
-    /// </summary>
-    protected async Task PublishMessageAsync<T>(string topic, T data, string messageType, CancellationToken cancellationToken = default)
-    {
-        var message = new StandardMessage<T>
-        {
-            MessageType = messageType,
-            Sender = "IOS.Motion",
-            Data = data
-        };
-
-        await MqttService.PublishAsync(topic, message, cancellationToken);
-        Logger.LogDebug("已发布消息到主题: {Topic}, 消息类型: {MessageType}", topic, messageType);
-    }
-
-    /// <summary>
     /// 保存共享数据的便利方法
     /// </summary>
     protected void SaveSharedData<T>(string key, T value)

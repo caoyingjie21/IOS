@@ -249,7 +249,14 @@ public class CoderHostService : BaseHostService
         var topic = GetPublishTopic(TopicType.CoderResult);
         if (!string.IsNullOrEmpty(topic))
         {
-            await PublishMessageAsync(topic, data, "CoderData", cancellationToken);
+            var message = new StandardMessage<object>
+            {
+                MessageType = "CoderData",
+                Sender = "IOS.Coder",
+                Data = data
+            };
+            
+            await _mqttService.PublishAsync(topic, message, cancellationToken);
         }
     }
 
@@ -261,7 +268,14 @@ public class CoderHostService : BaseHostService
         var topic = GetPublishTopic(TopicType.CoderStatus);
         if (!string.IsNullOrEmpty(topic))
         {
-            await PublishMessageAsync(topic, data, "CoderStatus", cancellationToken);
+            var message = new StandardMessage<object>
+            {
+                MessageType = "CoderStatus",
+                Sender = "IOS.Coder",
+                Data = data
+            };
+            
+            await _mqttService.PublishAsync(topic, message, cancellationToken);
         }
     }
 

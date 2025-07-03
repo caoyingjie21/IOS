@@ -11,6 +11,9 @@ using Microsoft.Extensions.Options;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet;
+using System.Diagnostics;
+using System.Reflection;
+using IOS.Base.Enums;
 
 namespace IOS.Base.Mqtt
 {
@@ -101,6 +104,94 @@ namespace IOS.Base.Mqtt
             {
                 _logger.LogError(ex, "发布消息失败, Topic: {Topic}", topic);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// 发布标准消息，自动生成StandardMessage包装
+        /// 示例使用：
+        /// await _mqttService.PublishStandardMessageAsync("topic/test", new { Status = "Running" }, MessageType.Data);
+        /// 该方法会自动使用反射获取调用方信息并填充到 StandardMessage 中
+        /// </summary>
+        public async Task PublishStandardMessageAsync<T>(string topic, T message, MessageType messageType, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // 使用反射获取调用方信息
+                var caller = GetCallerInfo();
+                
+                var standardMessage = new StandardMessage<T>
+                {
+                    MessageType = messageType,
+                    Sender = caller.CallerAssembly ?? "Unknown",
+                    Data = message,
+                };
+
+                await PublishAsync(topic, standardMessage, cancellationToken);
+                
+                _logger.LogDebug("已发布标准消息, Topic: {Topic}, MessageType: {MessageType}, Sender: {Sender}", 
+                    topic, messageType, standardMessage.Sender);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "发布标准消息失败, Topic: {Topic}, MessageType: {MessageType}", topic, messageType);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 获取调用方信息
+        /// </summary>
+        private CallerInfo GetCallerInfo()
+        {
+            try
+            {
+                var stackTrace = new StackTrace();
+                var frames = stackTrace.GetFrames();
+                
+                // 跳过当前方法和 PublishStandardMessageAsync 方法，找到真正的调用方
+                for (int i = 2; i < frames.Length; i++)
+                {
+                    var frame = frames[i];
+                    var method = frame.GetMethod();
+                    
+                    if (method != null)
+                    {
+                        var declaringType = method.DeclaringType;
+                        
+                        // 跳过系统类型和基础设施类型
+                        if (declaringType != null && 
+                            !declaringType.Namespace?.StartsWith("System") == true &&
+                            !declaringType.Namespace?.StartsWith("Microsoft") == true &&
+                            declaringType != typeof(MqttService))
+                        {
+                            return new CallerInfo
+                            {
+                                CallerMethod = method.Name,
+                                CallerType = declaringType.Name,
+                                CallerAssembly = declaringType.Assembly.GetName().Name
+                            };
+                        }
+                    }
+                }
+                
+                // 如果没有找到合适的调用方，返回默认信息
+                return new CallerInfo
+                {
+                    CallerMethod = "Unknown",
+                    CallerType = "Unknown",
+                    CallerAssembly = "Unknown"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "获取调用方信息失败");
+                return new CallerInfo
+                {
+                    CallerMethod = "Unknown",
+                    CallerType = "Unknown",
+                    CallerAssembly = "Unknown"
+                };
             }
         }
 
@@ -231,5 +322,15 @@ namespace IOS.Base.Mqtt
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 调用方信息
+    /// </summary>
+    internal class CallerInfo
+    {
+        public string? CallerMethod { get; set; }
+        public string? CallerType { get; set; }
+        public string? CallerAssembly { get; set; }
     }
 }

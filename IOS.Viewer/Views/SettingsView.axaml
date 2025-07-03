@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:IOS.Viewer.ViewModels"
 			 xmlns:suki="clr-namespace:SukiUI.Controls;assembly=SukiUI"
 			 xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="400"
              x:Class="IOS.Viewer.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
 	
@@ -27,11 +27,10 @@
 						   Margin="0,0,0,30"/>
 				
 				<!-- 服务监控区域 - 5个服务布局 -->
-				<Grid Grid.Row="1" MinHeight="700">
+				<Grid Grid.Row="1" MinHeight="900">
 					<Grid.RowDefinitions>
-						<RowDefinition Height="*"/>
-						<RowDefinition Height="*"/>
-						<RowDefinition Height="*"/>
+						<RowDefinition Height="420"/>
+						<RowDefinition Height="420"/>
 					</Grid.RowDefinitions>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="*"/>
@@ -44,11 +43,12 @@
 									Background="#FFFFFF" 
 									BorderBrush="#E67E22" 
 									BorderThickness="2"
-									Margin="10">
+									Margin="10"
+									Height="400">
 						<Grid Margin="15">
 							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="50"/>
+								<RowDefinition Height="20"/>
 								<RowDefinition Height="*"/>
 							</Grid.RowDefinitions>
 							
@@ -66,8 +66,8 @@
 									<TextBlock Text="CoderStatus" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
 								</StackPanel>
 								
-								<Border Grid.Column="1" Background="#E74C3C" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding CoderStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<Border Grid.Column="1" Background="{Binding ServiceStatusManager.CoderStatusColor}" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding ServiceStatusManager.CoderStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
 								</Border>
 								
 								<!-- 重启按钮 -->
@@ -107,110 +107,36 @@
 									BorderBrush="#E1E8ED" 
 									BorderThickness="1" 
 									CornerRadius="3">
-								<ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
-									<TextBlock Text="{Binding CoderStatusMessage}" 
-											   FontSize="11"
-											   Foreground="#2C3E50"
-											   TextWrapping="Wrap"
-											   FontFamily="Consolas, Monaco, 'Courier New', monospace"
-											   Padding="8"
-											   VerticalAlignment="Top"/>
+								<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+									<ItemsControl ItemsSource="{Binding ServiceStatusManager.CoderStatusMessages}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" 
+														   FontSize="11"
+														   Foreground="#2C3E50"
+														   TextWrapping="Wrap"
+														   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+														   Margin="8,2"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 								</ScrollViewer>
 							</Border>
 						</Grid>
 					</suki:GlassCard>
 					
-					<!-- 右上角：DataServerStatus服务 -->
-					<suki:GlassCard Grid.Row="0" Grid.Column="2" 
-									Background="#FFFFFF" 
-									BorderBrush="#3498DB" 
-									BorderThickness="2"
-									Margin="10">
-						<Grid Margin="15">
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="*"/>
-							</Grid.RowDefinitions>
-							
-							<!-- 服务标题和控制按钮 -->
-							<Grid Grid.Row="0" Margin="0,0,0,10">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*"/>
-									<ColumnDefinition Width="Auto"/>
-									<ColumnDefinition Width="Auto"/>
-									<ColumnDefinition Width="Auto"/>
-								</Grid.ColumnDefinitions>
-								
-								<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-									<materialIcons:MaterialIcon Kind="DatabaseSettings" Foreground="#3498DB" Width="20" Height="20"/>
-									<TextBlock Text="DataServerStatus" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
-								</StackPanel>
-								
-								<Border Grid.Column="1" Background="#E74C3C" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding DataServerStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
-								</Border>
-								
-								<!-- 重启按钮 -->
-								<Button Grid.Column="2" 
-										Width="40" Height="40" 
-										Background="#F39C12" 
-										CornerRadius="6" 
-										Padding="0" 
-										Margin="0,0,4,0"
-										VerticalAlignment="Center"
-										ToolTip.Tip="重启服务">
-									<materialIcons:MaterialIcon Kind="Restart" Foreground="White" Width="20" Height="20"/>
-								</Button>
-								
-								<!-- 配置按钮 -->
-								<Button Grid.Column="3" 
-										Width="40" Height="40" 
-										Background="#9B59B6" 
-										CornerRadius="6" 
-										Padding="0" 
-										VerticalAlignment="Center"
-										ToolTip.Tip="配置服务">
-									<materialIcons:MaterialIcon Kind="Settings" Foreground="White" Width="20" Height="20"/>
-								</Button>
-							</Grid>
-							
-							<!-- Topic信息 -->
-							<TextBlock Grid.Row="1" 
-									   Text="ios/v1/data/#" 
-									   FontSize="10" 
-									   Foreground="#7F8C8D"
-									   Margin="0,0,0,8"/>
-							
-							<!-- 消息显示区域 -->
-							<Border Grid.Row="2" 
-									Background="#FAFBFC" 
-									BorderBrush="#E1E8ED" 
-									BorderThickness="1" 
-									CornerRadius="3">
-								<ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
-									<TextBlock Text="{Binding DataServerStatusMessage}" 
-											   FontSize="11"
-											   Foreground="#2C3E50"
-											   TextWrapping="Wrap"
-											   FontFamily="Consolas, Monaco, 'Courier New', monospace"
-											   Padding="8"
-											   VerticalAlignment="Top"/>
-								</ScrollViewer>
-							</Border>
-						</Grid>
-					</suki:GlassCard>
-					
-					<!-- 中心：SchedulerStatus服务 -->
-					<suki:GlassCard Grid.Row="1" Grid.Column="1" 
+					<!-- 中上：SchedulerStatus服务 -->
+					<suki:GlassCard Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
 									Background="#FFFFFF" 
 									BorderBrush="#9B59B6" 
 									BorderThickness="2"
-									Margin="10">
+									Margin="10"
+									Height="820"
+									VerticalAlignment="Center">
 						<Grid Margin="15">
 							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="50"/>
+								<RowDefinition Height="20"/>
 								<RowDefinition Height="*"/>
 							</Grid.RowDefinitions>
 							
@@ -228,8 +154,8 @@
 									<TextBlock Text="SchedulerStatus" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
 								</StackPanel>
 								
-								<Border Grid.Column="1" Background="#E74C3C" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding SchedulerStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<Border Grid.Column="1" Background="{Binding ServiceStatusManager.SchedulerStatusColor}" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding ServiceStatusManager.SchedulerStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
 								</Border>
 								
 								<!-- 重启按钮 -->
@@ -269,29 +195,122 @@
 									BorderBrush="#E1E8ED" 
 									BorderThickness="1" 
 									CornerRadius="3">
-								<ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
-									<TextBlock Text="{Binding SchedulerStatusMessage}" 
-											   FontSize="11"
-											   Foreground="#2C3E50"
-											   TextWrapping="Wrap"
-											   FontFamily="Consolas, Monaco, 'Courier New', monospace"
-											   Padding="8"
-											   VerticalAlignment="Top"/>
+								<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+									<ItemsControl ItemsSource="{Binding ServiceStatusManager.SchedulerStatusMessages}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" 
+														   FontSize="11"
+														   Foreground="#2C3E50"
+														   TextWrapping="Wrap"
+														   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+														   Margin="8,2"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+								</ScrollViewer>
+							</Border>
+						</Grid>
+					</suki:GlassCard>
+					
+					<!-- 右上角：DataServerStatus服务 -->
+					<suki:GlassCard Grid.Row="0" Grid.Column="2" 
+									Background="#FFFFFF" 
+									BorderBrush="#3498DB" 
+									BorderThickness="2"
+									Margin="10"
+									Height="400">
+						<Grid Margin="15">
+							<Grid.RowDefinitions>
+								<RowDefinition Height="50"/>
+								<RowDefinition Height="20"/>
+								<RowDefinition Height="*"/>
+							</Grid.RowDefinitions>
+							
+							<!-- 服务标题和控制按钮 -->
+							<Grid Grid.Row="0" Margin="0,0,0,10">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="Auto"/>
+									<ColumnDefinition Width="Auto"/>
+									<ColumnDefinition Width="Auto"/>
+								</Grid.ColumnDefinitions>
+								
+								<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+									<materialIcons:MaterialIcon Kind="DatabaseSettings" Foreground="#3498DB" Width="20" Height="20"/>
+									<TextBlock Text="DataServerStatus" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+								</StackPanel>
+								
+								<Border Grid.Column="1" Background="{Binding ServiceStatusManager.DataServerStatusColor}" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding ServiceStatusManager.DataServerStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								</Border>
+								
+								<!-- 重启按钮 -->
+								<Button Grid.Column="2" 
+										Width="40" Height="40" 
+										Background="#F39C12" 
+										CornerRadius="6" 
+										Padding="0" 
+										Margin="0,0,4,0"
+										VerticalAlignment="Center"
+										ToolTip.Tip="重启服务">
+									<materialIcons:MaterialIcon Kind="Restart" Foreground="White" Width="20" Height="20"/>
+								</Button>
+								
+								<!-- 配置按钮 -->
+								<Button Grid.Column="3" 
+										Width="40" Height="40" 
+										Background="#9B59B6" 
+										CornerRadius="6" 
+										Padding="0" 
+										VerticalAlignment="Center"
+										ToolTip.Tip="配置服务">
+									<materialIcons:MaterialIcon Kind="Settings" Foreground="White" Width="20" Height="20"/>
+								</Button>
+							</Grid>
+							
+							<!-- Topic信息 -->
+							<TextBlock Grid.Row="1" 
+									   Text="ios/v1/data/#" 
+									   FontSize="10" 
+									   Foreground="#7F8C8D"
+									   Margin="0,0,0,8"/>
+							
+							<!-- 消息显示区域 -->
+							<Border Grid.Row="2" 
+									Background="#FAFBFC" 
+									BorderBrush="#E1E8ED" 
+									BorderThickness="1" 
+									CornerRadius="3">
+								<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+									<ItemsControl ItemsSource="{Binding ServiceStatusManager.DataServerStatusMessages}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" 
+														   FontSize="11"
+														   Foreground="#2C3E50"
+														   TextWrapping="Wrap"
+														   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+														   Margin="8,2"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 								</ScrollViewer>
 							</Border>
 						</Grid>
 					</suki:GlassCard>
 					
 					<!-- 左下角：MotionStatus服务 -->
-					<suki:GlassCard Grid.Row="2" Grid.Column="0" 
+					<suki:GlassCard Grid.Row="1" Grid.Column="0" 
 									Background="#FFFFFF" 
 									BorderBrush="#E74C3C" 
 									BorderThickness="2"
-									Margin="10">
+									Margin="10"
+									Height="400">
 						<Grid Margin="15">
 							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="50"/>
+								<RowDefinition Height="20"/>
 								<RowDefinition Height="*"/>
 							</Grid.RowDefinitions>
 							
@@ -309,8 +328,8 @@
 									<TextBlock Text="MotionStatus" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
 								</StackPanel>
 								
-								<Border Grid.Column="1" Background="#E74C3C" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding MotionStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<Border Grid.Column="1" Background="{Binding ServiceStatusManager.MotionStatusColor}" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding ServiceStatusManager.MotionStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
 								</Border>
 								
 								<!-- 重启按钮 -->
@@ -350,29 +369,35 @@
 									BorderBrush="#E1E8ED" 
 									BorderThickness="1" 
 									CornerRadius="3">
-								<ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
-									<TextBlock Text="{Binding MotionStatusMessage}" 
-											   FontSize="11"
-											   Foreground="#2C3E50"
-											   TextWrapping="Wrap"
-											   FontFamily="Consolas, Monaco, 'Courier New', monospace"
-											   Padding="8"
-											   VerticalAlignment="Top"/>
+								<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+									<ItemsControl ItemsSource="{Binding ServiceStatusManager.MotionStatusMessages}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" 
+														   FontSize="11"
+														   Foreground="#2C3E50"
+														   TextWrapping="Wrap"
+														   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+														   Margin="8,2"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 								</ScrollViewer>
 							</Border>
 						</Grid>
 					</suki:GlassCard>
 					
 					<!-- 右下角：Vision服务 -->
-					<suki:GlassCard Grid.Row="2" Grid.Column="2" 
+					<suki:GlassCard Grid.Row="1" Grid.Column="2" 
 									Background="#FFFFFF" 
 									BorderBrush="#27AE60" 
 									BorderThickness="2"
-									Margin="10">
+									Margin="10"
+									Height="400">
 						<Grid Margin="15">
 							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="50"/>
+								<RowDefinition Height="20"/>
 								<RowDefinition Height="*"/>
 							</Grid.RowDefinitions>
 							
@@ -390,8 +415,8 @@
 									<TextBlock Text="Vision" FontSize="14" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
 								</StackPanel>
 								
-								<Border Grid.Column="1" Background="#E74C3C" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding VisionStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<Border Grid.Column="1" Background="{Binding ServiceStatusManager.VisionStatusColor}" CornerRadius="8" Padding="6,3" Margin="0,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding ServiceStatusManager.VisionStatusText}" FontSize="10" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center"/>
 								</Border>
 								
 								<!-- 重启按钮 -->
@@ -431,14 +456,19 @@
 									BorderBrush="#E1E8ED" 
 									BorderThickness="1" 
 									CornerRadius="3">
-								<ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
-									<TextBlock Text="{Binding VisionStatusMessage}" 
-											   FontSize="11"
-											   Foreground="#2C3E50"
-											   TextWrapping="Wrap"
-											   FontFamily="Consolas, Monaco, 'Courier New', monospace"
-											   Padding="8"
-											   VerticalAlignment="Top"/>
+								<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+									<ItemsControl ItemsSource="{Binding ServiceStatusManager.VisionStatusMessages}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" 
+														   FontSize="11"
+														   Foreground="#2C3E50"
+														   TextWrapping="Wrap"
+														   FontFamily="Consolas, Monaco, 'Courier New', monospace"
+														   Margin="8,2"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 								</ScrollViewer>
 							</Border>
 						</Grid>

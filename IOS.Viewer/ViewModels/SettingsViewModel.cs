@@ -5,142 +5,35 @@ using Microsoft.Extensions.DependencyInjection;
 using IOS.Viewer.Services;
 using IOS.Viewer.Views;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Threading;
+using System.Text.Json;
 
 namespace IOS.Viewer.ViewModels;
 
-public partial class SettingsViewModel : ObservableObject, IDisposable
+public partial class SettingsViewModel : ObservableObject
 {
     private readonly ILogger<SettingsViewModel>? _logger;
     private readonly INavigationService? _navigationService;
 
-    // CoderStatus 服务属性
-    [ObservableProperty] private string _coderStatusText = "未连接";
-    [ObservableProperty] private string _coderStatusMessage = "等待消息...";
-
-    // DataServerStatus 服务属性
-    [ObservableProperty] private string _dataServerStatusText = "未连接";
-    [ObservableProperty] private string _dataServerStatusMessage = "等待消息...";
-
-    // SchedulerStatus 服务属性
-    [ObservableProperty] private string _schedulerStatusText = "未连接";
-    [ObservableProperty] private string _schedulerStatusMessage = "等待消息...";
-
-    // MotionStatus 服务属性
-    [ObservableProperty] private string _motionStatusText = "未连接";
-    [ObservableProperty] private string _motionStatusMessage = "等待消息...";
-
-    // Vision 服务属性
-    [ObservableProperty] private string _visionStatusText = "未连接";
-    [ObservableProperty] private string _visionStatusMessage = "等待消息...";
+    /// <summary>
+    /// 服务状态管理器，UI 直接绑定到这个属性
+    /// </summary>
+    public ServiceStatusManager? ServiceStatusManager { get; }
 
     public SettingsViewModel()
     {
         _logger = App.GetService<ILogger<SettingsViewModel>>();
         _navigationService = App.GetService<INavigationService>();
+        ServiceStatusManager = ViewerHostService.ServiceStatusManager;
         
-        // 订阅MQTT消息事件
-        ViewerHostService.MqttMessageReceived += OnMqttMessageReceived;
-        
-        _logger?.LogInformation("设置页面已初始化，开始监听5个服务的MQTT消息");
-    }
-
-    /// <summary>
-    /// 释放资源
-    /// </summary>
-    public void Dispose()
-    {
-        // 取消订阅MQTT消息事件
-        ViewerHostService.MqttMessageReceived -= OnMqttMessageReceived;
-        _logger?.LogInformation("SettingsViewModel 已释放资源");
-    }
-
-    /// <summary>
-    /// 处理接收到的MQTT消息
-    /// </summary>
-    private void OnMqttMessageReceived(string topic, string message)
-    {
-        // 确保在UI线程上更新界面
-        Dispatcher.UIThread.InvokeAsync(() =>
+        if (ServiceStatusManager == null)
         {
-            try
-            {
-                var displayMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
-                
-                // 根据topic路由到对应的服务
-                if (topic.StartsWith("ios/v1/coder/", StringComparison.OrdinalIgnoreCase))
-                {
-                    UpdateCoderStatus(displayMessage);
-                }
-                else if (topic.StartsWith("ios/v1/data/", StringComparison.OrdinalIgnoreCase))
-                {
-                    UpdateDataServerStatus(displayMessage);
-                }
-                else if (topic.StartsWith("ios/v1/scheduler/", StringComparison.OrdinalIgnoreCase))
-                {
-                    UpdateSchedulerStatus(displayMessage);
-                }
-                else if (topic.StartsWith("ios/v1/motion/", StringComparison.OrdinalIgnoreCase))
-                {
-                    UpdateMotionStatus(displayMessage);
-                }
-                else if (topic.StartsWith("ios/v1/vision/", StringComparison.OrdinalIgnoreCase))
-                {
-                    UpdateVisionStatus(displayMessage);
-                }
-                
-                _logger?.LogDebug("已处理MQTT消息: Topic={Topic}, Message={Message}", topic, message);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "处理MQTT消息时发生错误: Topic={Topic}", topic);
-            }
-        });
-    }
-
-    /// <summary>
-    /// 更新CoderStatus服务状态
-    /// </summary>
-    private void UpdateCoderStatus(string message)
-    {
-        CoderStatusText = "运行中";
-        CoderStatusMessage = message;
-    }
-
-    /// <summary>
-    /// 更新DataServerStatus服务状态
-    /// </summary>
-    private void UpdateDataServerStatus(string message)
-    {
-        DataServerStatusText = "运行中";
-        DataServerStatusMessage = message;
-    }
-
-    /// <summary>
-    /// 更新SchedulerStatus服务状态
-    /// </summary>
-    private void UpdateSchedulerStatus(string message)
-    {
-        SchedulerStatusText = "运行中";
-        SchedulerStatusMessage = message;
-    }
-
-    /// <summary>
-    /// 更新MotionStatus服务状态
-    /// </summary>
-    private void UpdateMotionStatus(string message)
-    {
-        MotionStatusText = "运行中";
-        MotionStatusMessage = message;
-    }
-
-    /// <summary>
-    /// 更新Vision服务状态
-    /// </summary>
-    private void UpdateVisionStatus(string message)
-    {
-        VisionStatusText = "运行中";
-        VisionStatusMessage = message;
+            _logger?.LogWarning("ServiceStatusManager 未找到，服务状态将不可用");
+        }
+        
+        _logger?.LogInformation("设置页面已初始化");
     }
 
     /// <summary>

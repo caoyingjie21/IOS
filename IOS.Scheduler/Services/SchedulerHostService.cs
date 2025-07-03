@@ -86,21 +86,6 @@ namespace IOS.Scheduler.Services
         }
 
         /// <summary>
-        /// 发布状态消息（定时器回调）
-        /// </summary>
-        private async void PublishStatusAsync(object? state)
-        {
-            try
-            {
-                await PublishServiceStatusAsync("运行中");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "发布状态消息失败");
-            }
-        }
-
-        /// <summary>
         /// 发布服务状态
         /// </summary>
         private async Task PublishServiceStatusAsync(string status, CancellationToken cancellationToken = default)
@@ -117,7 +102,7 @@ namespace IOS.Scheduler.Services
             _logger.LogInformation(topic);
             if (!string.IsNullOrEmpty(topic))
             {
-                await PublishMessageAsync(topic, statusData, "service_status", cancellationToken);
+                await _mqttService.PublishStandardMessageAsync(topic, statusData, MessageType.Data, cancellationToken);
             }
         }
 
